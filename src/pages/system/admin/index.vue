@@ -1,0 +1,242 @@
+<template>
+  <div>
+    <t-card class="list-card-container" :bordered="false">
+      <t-row justify="space-between">
+        <div class="left-operation-container">
+          <t-button @click="handleAdd"> 添加帐号 </t-button>
+        </div>
+        <div class="flex">
+          <t-input
+            v-model="keyword"
+            class="search-input"
+            placeholder="请输入内容搜索"
+            clearable
+            @change="handleKeywordInput"
+          >
+            <template #suffix-icon>
+              <search-icon size="16px" />
+            </template>
+          </t-input>
+          <div class="flex ml-4 rounded-md border">
+            <div class="">
+              <t-button theme="default" variant="text">
+                <template #icon><refresh-icon /></template>
+                刷新</t-button
+              >
+            </div>
+            <div class="border-l">
+              <t-button theme="default" :loading="false" variant="text">
+                <template #icon><cloud-upload-icon /></template>
+                导入</t-button
+              >
+            </div>
+            <div class="border-l">
+              <t-button theme="default" :loading="false" variant="text" @click="exportExcel">
+                <template #icon><download-icon /></template>
+                导出</t-button
+              >
+            </div>
+          </div>
+        </div>
+      </t-row>
+      <t-table
+        :data="data"
+        :columns="COLUMNS"
+        :row-key="rowKey"
+        vertical-align="top"
+        :hover="true"
+        :pagination="pagination"
+        :loading="dataLoading"
+        :header-affixed-top="headerAffixedTop"
+        @page-change="rehandlePageChange"
+      >
+        <!-- 插槽方式 自定义单元格， colKey 的值默认为插槽名称  -->
+        <template #roles="{ row }">
+          <t-tag
+            v-for="item in row.roles"
+            :key="item.id"
+            class="mr-3"
+            shape="round"
+            theme="primary"
+            variant="light-outline"
+          >
+            {{ item.name }}
+          </t-tag>
+        </template>
+        <template #op="slotProps">
+          <t-space>
+            <t-link
+              v-if="slotProps.row.status === STATUS.ENABLED"
+              theme="danger"
+              @click="toggleStatus(slotProps.row.id, STATUS.DISABLED)"
+              >禁用</t-link
+            >
+            <t-link v-else theme="primary" @click="toggleStatus(slotProps.row.id, STATUS.ENABLED)">启用</t-link>
+            <t-link theme="primary" @click="handleEdit(slotProps.row)">编辑</t-link>
+            <t-link theme="danger" @click="handleDelete(slotProps)">删除</t-link>
+          </t-space>
+        </template>
+      </t-table>
+    </t-card>
+
+    <t-dialog
+      v-model:visible="confirmVisible"
+      header="确认删除当前所选帐号？"
+      :body="confirmBody"
+      :on-cancel="onCancel"
+      @confirm="onConfirmDelete"
+    />
+    <adminForm ref="adminFormRef" @done="onDone" />
+  </div>
+</template>
+
+<script lang="ts">
+export default {
+  name: 'Admin',
+};
+</script>
+
+<script setup lang="ts">
+// import { useRouter } from 'vue-router';
+import debounce from 'lodash/debounce';
+import { CloudUploadIcon, DownloadIcon, RefreshIcon, SearchIcon } from 'tdesign-icons-vue-next';
+import { DialogPlugin, MessagePlugin } from 'tdesign-vue-next';
+import { computed, onMounted, ref, toRaw } from 'vue';
+
+import { deleteAdmin, getAdmins, toggleAdminStatus } from '@/api/system';
+import { prefix } from '@/config/global';
+import { STATUS, STATUS_TXT } from '@/constants';
+import { useSettingStore } from '@/store';
+// import { saveAsExcel } from '@/utils/util';
+
+import { COLUMNS } from './columns';
+import adminForm from './form.vue';
+
+const store = useSettingStore();
+
+const keyword = ref('');
+const handleKeywordInput = debounce(() => {
+  fetchData();
+}, 500);
+
+const data = ref([]);
+
+const toggleStatus = (id: number, status: number) => {
+  const confirmDia = DialogPlugin({
+    header: '确认',
+    body: `确定要${STATUS_TXT[status]}管理员吗`,
+    confirmBtn: '确定',
+    cancelBtn: '取消',
+    onConfirm: ({ e }) => {
+      toggleAdminStatus({ id, status }).then((res) => {
+        confirmDia.hide();
+        fetchData();
+      });
+    },
+    onClose: ({ e, trigger }) => {
+      confirmDia.hide();
+    },
+  });
+};
+
+const exportExcel = () => {
+  // exportAdmins({ keyword: keyword.value }).then((res) => {
+  //   saveAsExcel(res.data, '管理员列表');
+  // });
+};
+
+const rowKey = 'index';
+const pagination = ref({
+  defaultPageSize: 10,
+  pageSize: 10,
+  total: 0,
+  current: 1,
+  defaultCurrent: 1,
+});
+
+const dataLoading = ref(false);
+const fetchData = async () => {
+  dataLoading.value = true;
+  try {
+    const { list, total } = await getAdmins({
+      pageNum: pagination.value.current,
+      pageSize: pagination.value.pageSize,
+      keyword: keyword.value,
+    });
+    data.value = list;
+    pagination.value = {
+      ...pagination.value,
+      total,
+    };
+  } catch (e) {
+    console.log(e);
+  } finally {
+    dataLoading.value = false;
+  }
+};
+
+const rehandlePageChange = (curr: any, pageInfo: unknown) => {
+  pagination.value.current = curr.current;
+  pagination.value.pageSize = curr.pageSize;
+  fetchData();
+};
+
+const headerAffixedTop = computed(
+  () =>
+    ({
+      offsetTop: store.isUseTabsRouter ? 48 : 0,
+      container: `.${prefix}-layout`,
+    } as any),
+);
+
+const deleteIdx = ref(-1);
+const confirmVisible = ref(false);
+
+const resetIdx = () => {
+  deleteIdx.value = -1;
+};
+
+const onConfirmDelete = () => {
+  deleteAdmin(data.value[deleteIdx.value].id).then((res) => {
+    data.value.splice(deleteIdx.value, 1);
+    confirmVisible.value = false;
+    MessagePlugin.success('删除成功');
+    pagination.value.total--;
+    resetIdx();
+  });
+};
+
+const onCancel = () => {
+  resetIdx();
+};
+const confirmBody = computed(() => {
+  if (deleteIdx.value > -1) {
+    const { name } = data.value[deleteIdx.value];
+    return `管理员[${name}]将被删除，且无法恢复`;
+  }
+  return '';
+});
+
+onMounted(() => {
+  fetchData();
+});
+
+const adminFormRef = ref();
+
+const handleAdd = () => {
+  adminFormRef.value.open();
+};
+
+const handleEdit = (row: any) => {
+  adminFormRef.value.open(toRaw(row));
+};
+
+const handleDelete = (row: { rowIndex: any }) => {
+  deleteIdx.value = row.rowIndex;
+  confirmVisible.value = true;
+};
+
+const onDone = () => {
+  fetchData();
+};
+</script>
