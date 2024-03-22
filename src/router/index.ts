@@ -1,13 +1,15 @@
 import uniq from 'lodash/uniq';
 import { createRouter, createWebHistory, RouteRecordRaw, useRoute } from 'vue-router';
 
+import { settings } from '@/config/global';
+
 const env = import.meta.env.MODE || 'development';
 
 // 导入homepage相关固定路由
-const homepageModules = import.meta.glob('./modules/**/homepage.ts', { eager: true });
+// const homepageModules = import.meta.glob('./modules/**/homepage.ts', { eager: true });
 
 // 导入modules非homepage相关固定路由
-const fixedModules = import.meta.glob('./modules/**/!(homepage).ts', { eager: true });
+const fixedModules = import.meta.glob('./modules/**/*.ts', { eager: true });
 
 // 其他固定路由
 const defaultRouterList: Array<RouteRecordRaw> = [
@@ -18,14 +20,14 @@ const defaultRouterList: Array<RouteRecordRaw> = [
   },
   {
     path: '/',
-    redirect: '/dashboard/base',
+    redirect: settings.routeHome,
   },
 ];
 // 存放固定路由
-export const homepageRouterList: Array<RouteRecordRaw> = mapModuleRouterList(homepageModules);
+// export const homepageRouterList: Array<RouteRecordRaw> = mapModuleRouterList(homepageModules);
 export const fixedRouterList: Array<RouteRecordRaw> = mapModuleRouterList(fixedModules);
 
-export const allRoutes = [...homepageRouterList, ...fixedRouterList, ...defaultRouterList];
+export const allRoutes = [...fixedRouterList, ...defaultRouterList];
 
 // 固定路由模块转换为路由
 export function mapModuleRouterList(modules: Record<string, unknown>): Array<RouteRecordRaw> {
@@ -74,7 +76,7 @@ export const getActive = (maxLevel = 3): string => {
 
 const router = createRouter({
   history: createWebHistory(env === 'site' ? '/starter/vue-next/' : import.meta.env.VITE_BASE_URL),
-  routes: allRoutes,
+  routes: defaultRouterList,
   scrollBehavior() {
     return {
       el: '#app',

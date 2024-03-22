@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
 
+import { AdminInfo, Login } from '@/api/admin';
 import { usePermissionStore } from '@/store';
 import type { UserInfo } from '@/types/interface';
 import { SHA256 } from '@/utils/crypto';
-import { Login, AdminInfo } from '@/api/admin';
 
 const InitUserInfo: UserInfo = {
   name: '', // 用户名，用于展示在页面右上角头像处
@@ -22,9 +22,12 @@ export const useUserStore = defineStore('user', {
   },
   actions: {
     async login(userInfo: Record<string, string>) {
-      const { password } = userInfo;
-      userInfo.password = await SHA256(password);
-      const res = await Login(userInfo);
+      let { password } = userInfo;
+      password = await SHA256(password);
+      const res = await Login({
+        account: userInfo.account,
+        password,
+      });
       if (res.code === 200) {
         this.token = res.data;
       } else {

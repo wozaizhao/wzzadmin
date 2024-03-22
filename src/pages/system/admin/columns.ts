@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { PrimaryTableCol, TableRowData } from 'tdesign-vue-next';
+
 import { STATUS_TXT } from '@/constants';
 
 export const COLUMNS: PrimaryTableCol<TableRowData>[] = [
@@ -11,20 +12,20 @@ export const COLUMNS: PrimaryTableCol<TableRowData>[] = [
     colKey: 'account',
     // fixed: 'left',
   },
-  { title: '手机号', width: 200, colKey: 'phoneNumber' },
+  { title: '手机号', colKey: 'phoneNumber' },
   {
     title: '角色',
-    width: 200,
+    // width: 200,
     // ellipsis: true,
     colKey: 'roles',
     // cell: (h, { col, row }) => row.roles.map((ele: any) => ele.name).join(','),
   },
   {
     title: '状态',
-    width: 100,
+    // width: 100,
     // ellipsis: true,
     colKey: 'status',
-    cell: (h, { col, row }) => STATUS_TXT[row.status],
+    cell: (h, { row }) => STATUS_TXT[row.status],
   },
   {
     title: '创建时间',

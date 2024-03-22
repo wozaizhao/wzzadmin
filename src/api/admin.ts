@@ -1,5 +1,5 @@
-import { request } from '@/utils/request';
 import { MenuListResult } from '@/types/interface';
+import { request } from '@/utils/request';
 
 export function Login(data: any) {
   return request.post(

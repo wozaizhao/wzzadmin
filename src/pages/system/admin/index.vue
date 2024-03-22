@@ -107,8 +107,8 @@ import { deleteAdmin, getAdmins, toggleAdminStatus } from '@/api/system';
 import { prefix } from '@/config/global';
 import { STATUS, STATUS_TXT } from '@/constants';
 import { useSettingStore } from '@/store';
-// import { saveAsExcel } from '@/utils/util';
 
+// import { saveAsExcel } from '@/utils/util';
 import { COLUMNS } from './columns';
 import adminForm from './form.vue';
 
@@ -186,7 +186,7 @@ const headerAffixedTop = computed(
     ({
       offsetTop: store.isUseTabsRouter ? 48 : 0,
       container: `.${prefix}-layout`,
-    } as any),
+    }) as any,
 );
 
 const deleteIdx = ref(-1);

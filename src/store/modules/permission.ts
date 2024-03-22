@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia';
 import { RouteRecordRaw } from 'vue-router';
 
-import { RouteItem } from '@/api/model/permissionModel';
 import { getMenuList } from '@/api/admin';
-import router, { fixedRouterList, homepageRouterList } from '@/router';
+import { RouteItem } from '@/api/model/permissionModel';
+import { settings } from '@/config/global';
+import router, { fixedRouterList } from '@/router';
 import { store } from '@/store';
 import { transformObjectToRoute } from '@/utils/route';
 
@@ -25,7 +26,7 @@ export const usePermissionStore = defineStore('permission', {
       const accessedRouters = this.asyncRoutes;
 
       // 在菜单展示全部路由
-      this.routers = [...homepageRouterList, ...accessedRouters, ...fixedRouterList];
+      this.routers = [...accessedRouters];
       // 在菜单只展示动态路由和首页
       // this.routers = [...homepageRouterList, ...accessedRouters];
       // 在菜单只展示动态路由
@@ -33,9 +34,14 @@ export const usePermissionStore = defineStore('permission', {
     },
     async buildAsyncRoutes() {
       try {
-        // 发起菜单权限请求 获取菜单列表
-        const asyncRoutes: Array<RouteItem> = (await getMenuList()) || [];
-        this.asyncRoutes = transformObjectToRoute(asyncRoutes);
+        if (settings.routeMode === 'back') {
+          // 发起菜单权限请求 获取菜单列表
+          const asyncRoutes: Array<RouteItem> = (await getMenuList()) || [];
+          this.asyncRoutes = transformObjectToRoute(asyncRoutes);
+          await this.initRoutes();
+          return this.asyncRoutes;
+        }
+        this.asyncRoutes = fixedRouterList;
         await this.initRoutes();
         return this.asyncRoutes;
       } catch (error) {

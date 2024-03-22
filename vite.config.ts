@@ -30,17 +30,13 @@ export default ({ mode }: ConfigEnv): UserConfig => {
       },
     },
 
-    plugins: [
-      vue(),
-      vueJsx(),
-      svgLoader(),
-    ],
+    plugins: [vue(), vueJsx(), svgLoader()],
 
     server: {
       port: 3002,
       host: '0.0.0.0',
       proxy: {
-        // '/api': {
+        // [VITE_API_URL_PREFIX]: {
         //   target: 'http://127.0.0.1:8083',
         //   changeOrigin: true,
         //   rewrite: (path) => path.replace(/^\/api/, ''),
