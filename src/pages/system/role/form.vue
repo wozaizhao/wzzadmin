@@ -2,7 +2,7 @@
   <t-drawer v-model:visible="drawerVisible" :close-btn="true" size="400px" :header="title">
     <t-form ref="formRef" class="base-form" :data="formData" :rules="FORM_RULES" label-align="left" :label-width="100">
       <t-form-item label="名称" name="name">
-        <t-input v-model="formData.name" placeholder="请输入角色名称" />
+        <t-input v-model="formData.name" :disabled="mode === 'edit'" placeholder="请输入角色名称" />
       </t-form-item>
       <t-form-item label="角色权限" name="menus">
         <!-- <t-tree-select v-model="formData.roles" :data="menus" /> -->
@@ -45,13 +45,14 @@ import { onMounted, ref } from 'vue';
 
 import { addRole, editRole, getAllMenus, getRoleMenus } from '@/api/system';
 
-import { FORM_RULES, INITIAL_DATA } from './constants';
+import { FORM_RULES, INITIAL_DATA, moduleName } from './constants';
 
 const emit = defineEmits(['update']);
 
 const formData = ref({ ...INITIAL_DATA });
+const mode = ref('add'); // 新增 add 编辑 edit
 
-const title = ref('新增角色');
+const title = ref(`新增${moduleName}`);
 const drawerVisible = ref(false);
 const formRef = ref();
 
@@ -69,7 +70,7 @@ const onSubmit = () => {
         });
       } else {
         addRole(formData.value).then((res) => {
-          MessagePlugin.success('新建成功');
+          MessagePlugin.success('新增成功');
           drawerVisible.value = false;
           emit('update');
         });
@@ -99,10 +100,12 @@ const open = (val: any) => {
   if (val) {
     formData.value = val;
     getMenus(val.id);
-    title.value = '编辑角色';
+    title.value = `编辑${moduleName}`;
+    mode.value = 'edit';
   } else {
     formData.value = INITIAL_DATA;
-    title.value = '新增角色';
+    title.value = `新增${moduleName}`;
+    mode.value = 'add';
     formRef.value.reset();
   }
   drawerVisible.value = true;

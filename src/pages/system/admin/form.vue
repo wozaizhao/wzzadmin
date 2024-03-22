@@ -1,6 +1,9 @@
 <template>
   <t-drawer v-model:visible="drawerVisible" :close-btn="true" size="400px" :header="title">
     <t-form ref="formRef" class="base-form" :data="formData" :rules="FORM_RULES" label-align="left" :label-width="100">
+      <t-form-item label="帐号" name="accpimt">
+        <t-input v-model="formData.account" :disabled="mode === 'edit'" placeholder="请输入帐号" />
+      </t-form-item>
       <t-form-item label="Email" name="email">
         <t-input v-model="formData.email" placeholder="请输入Email" />
       </t-form-item>
@@ -32,7 +35,7 @@ import { onMounted, ref } from 'vue';
 
 import { addAdmin, editAdmin, getAllRoles } from '@/api/system';
 
-import { FORM_RULES, INITIAL_DATA } from './constants';
+import { FORM_RULES, INITIAL_DATA, moduleName } from './constants';
 
 interface Emits {
   (e: 'done'): void;
@@ -42,7 +45,8 @@ const emit = defineEmits<Emits>();
 
 const formData = ref({ ...INITIAL_DATA });
 
-const title = ref('新增管理员');
+const title = ref(`新增${moduleName}`);
+const mode = ref('add'); // 新增 add 编辑 edit
 const drawerVisible = ref(false);
 const formRef = ref();
 const roleOptions = ref([]);
@@ -62,7 +66,7 @@ const onSubmit = () => {
       } else {
         addAdmin(formData.value).then((res) => {
           console.log(res);
-          MessagePlugin.success('新建成功');
+          MessagePlugin.success('新增成功');
           drawerVisible.value = false;
           emit('done');
         });
@@ -76,10 +80,12 @@ const open = (val: any) => {
     formData.value = { ...val };
     const roles = JSON.parse(JSON.stringify(val.roles));
     formData.value.roles = roles.map((role: any) => role.id);
-    title.value = '编辑管理员';
+    title.value = `编辑${moduleName}`;
+    mode.value = 'edit';
   } else {
     formData.value = INITIAL_DATA;
-    title.value = '新增管理员';
+    title.value = `新增${moduleName}`;
+    mode.value = 'add';
     formRef.value.reset();
   }
   drawerVisible.value = true;

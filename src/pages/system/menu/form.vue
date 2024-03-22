@@ -170,7 +170,7 @@ const onSubmit = () => {
         });
       } else {
         addMenu(data).then((res) => {
-          MessagePlugin.success('新建成功');
+          MessagePlugin.success('新增成功');
           emit('update');
         });
       }

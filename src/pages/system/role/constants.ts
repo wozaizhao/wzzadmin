@@ -1,5 +1,7 @@
 import type { FormRule } from 'tdesign-vue-next';
 
+export const moduleName = '角色';
+
 export const FORM_RULES: Record<string, FormRule[]> = {
   name: [{ required: true, message: '请输入角色名称', type: 'error' }],
 };

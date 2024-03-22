@@ -3,7 +3,7 @@
     <t-card class="list-card-container" :bordered="false">
       <t-row justify="space-between">
         <div class="left-operation-container">
-          <t-button @click="handleAdd"> 添加帐号 </t-button>
+          <t-button @click="handleAdd"> 添加{{ moduleName }} </t-button>
         </div>
         <div class="flex">
           <t-input
@@ -17,24 +17,18 @@
               <search-icon size="16px" />
             </template>
           </t-input>
-          <div class="flex ml-4 rounded-md border">
-            <div class="">
-              <t-button theme="default" variant="text">
-                <template #icon><refresh-icon /></template>
-                刷新</t-button
-              >
+          <div class="ml-4 t-radio-group t-size-m t-radio-group__outline">
+            <div class="t-radio-button" @click="fetchData">
+              <refresh-icon class="mr-1" />
+              <span class="hidden lg:inline">刷新</span>
             </div>
-            <div class="border-l">
-              <t-button theme="default" :loading="false" variant="text">
-                <template #icon><cloud-upload-icon /></template>
-                导入</t-button
-              >
-            </div>
-            <div class="border-l">
-              <t-button theme="default" :loading="false" variant="text" @click="exportExcel">
-                <template #icon><download-icon /></template>
-                导出</t-button
-              >
+            <!-- <div class="t-radio-button">
+              <cloud-upload-icon class="mr-1" />
+              <span class="hidden lg:inline">导入</span>
+            </div> -->
+            <div class="t-radio-button">
+              <download-icon class="mr-1" />
+              <span class="hidden lg:inline">导出</span>
             </div>
           </div>
         </div>
@@ -68,10 +62,10 @@
             <t-link
               v-if="slotProps.row.status === STATUS.ENABLED"
               theme="danger"
-              @click="toggleStatus(slotProps.row.id, STATUS.DISABLED)"
+              @click="toggleStatus(slotProps.row, STATUS.DISABLED)"
               >禁用</t-link
             >
-            <t-link v-else theme="primary" @click="toggleStatus(slotProps.row.id, STATUS.ENABLED)">启用</t-link>
+            <t-link v-else theme="primary" @click="toggleStatus(slotProps.row, STATUS.ENABLED)">启用</t-link>
             <t-link theme="primary" @click="handleEdit(slotProps.row)">编辑</t-link>
             <t-link theme="danger" @click="handleDelete(slotProps)">删除</t-link>
           </t-space>
@@ -81,7 +75,7 @@
 
     <t-dialog
       v-model:visible="confirmVisible"
-      header="确认删除当前所选帐号？"
+      header="确认删除当前所选管理员？"
       :body="confirmBody"
       :on-cancel="onCancel"
       @confirm="onConfirmDelete"
@@ -99,7 +93,7 @@ export default {
 <script setup lang="ts">
 // import { useRouter } from 'vue-router';
 import debounce from 'lodash/debounce';
-import { CloudUploadIcon, DownloadIcon, RefreshIcon, SearchIcon } from 'tdesign-icons-vue-next';
+import { DownloadIcon, RefreshIcon, SearchIcon } from 'tdesign-icons-vue-next';
 import { DialogPlugin, MessagePlugin } from 'tdesign-vue-next';
 import { computed, onMounted, ref, toRaw } from 'vue';
 
@@ -110,6 +104,7 @@ import { useSettingStore } from '@/store';
 
 // import { saveAsExcel } from '@/utils/util';
 import { COLUMNS } from './columns';
+import { moduleName } from './constants';
 import adminForm from './form.vue';
 
 const store = useSettingStore();
@@ -121,14 +116,14 @@ const handleKeywordInput = debounce(() => {
 
 const data = ref([]);
 
-const toggleStatus = (id: number, status: number) => {
+const toggleStatus = (row: any, status: number) => {
   const confirmDia = DialogPlugin({
     header: '确认',
-    body: `确定要${STATUS_TXT[status]}管理员吗`,
+    body: `确定要${STATUS_TXT[status]}${moduleName}${row.account}吗`,
     confirmBtn: '确定',
     cancelBtn: '取消',
     onConfirm: ({ e }) => {
-      toggleAdminStatus({ id, status }).then((res) => {
+      toggleAdminStatus({ id: row.id, status }).then((res) => {
         confirmDia.hide();
         fetchData();
       });
@@ -139,11 +134,11 @@ const toggleStatus = (id: number, status: number) => {
   });
 };
 
-const exportExcel = () => {
-  // exportAdmins({ keyword: keyword.value }).then((res) => {
-  //   saveAsExcel(res.data, '管理员列表');
-  // });
-};
+// const exportExcel = () => {
+// exportAdmins({ keyword: keyword.value }).then((res) => {
+//   saveAsExcel(res.data, '管理员列表');
+// });
+// };
 
 const rowKey = 'index';
 const pagination = ref({
@@ -211,8 +206,9 @@ const onCancel = () => {
 };
 const confirmBody = computed(() => {
   if (deleteIdx.value > -1) {
-    const { name } = data.value[deleteIdx.value];
-    return `管理员[${name}]将被删除，且无法恢复`;
+    console.log(data.value, deleteIdx.value);
+    const { account } = data.value[deleteIdx.value];
+    return `${moduleName}[${account}]将被删除，且无法恢复`;
   }
   return '';
 });

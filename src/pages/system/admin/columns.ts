@@ -12,7 +12,7 @@ export const COLUMNS: PrimaryTableCol<TableRowData>[] = [
     colKey: 'account',
     // fixed: 'left',
   },
-  { title: '手机号', colKey: 'phoneNumber' },
+  { title: '手机号', width: 140, colKey: 'phoneNumber' },
   {
     title: '角色',
     // width: 200,

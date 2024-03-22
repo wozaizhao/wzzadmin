@@ -3,14 +3,34 @@
     <t-card class="list-card-container" :bordered="false">
       <t-row justify="space-between">
         <div class="left-operation-container">
-          <t-button @click="handleAdd"> 添加角色 </t-button>
+          <t-button @click="handleAdd"> 添加{{ moduleName }} </t-button>
         </div>
-        <div class="search-input">
-          <t-input v-model="keyword" placeholder="请输入内容搜索" clearable @change="handleKeywordInput">
+        <div class="flex">
+          <t-input
+            v-model="keyword"
+            class="search-input"
+            placeholder="请输入内容搜索"
+            clearable
+            @change="handleKeywordInput"
+          >
             <template #suffix-icon>
               <search-icon size="16px" />
             </template>
           </t-input>
+          <div class="ml-4 t-radio-group t-size-m t-radio-group__outline">
+            <div class="t-radio-button" @click="fetchData">
+              <refresh-icon class="mr-1" />
+              <span class="hidden lg:inline">刷新</span>
+            </div>
+            <!-- <div class="t-radio-button">
+              <cloud-upload-icon class="mr-1" />
+              <span class="hidden lg:inline">导入</span>
+            </div> -->
+            <div class="t-radio-button">
+              <download-icon class="mr-1" />
+              <span class="hidden lg:inline">导出</span>
+            </div>
+          </div>
         </div>
       </t-row>
       <t-table
@@ -53,7 +73,7 @@ export default {
 <script setup lang="ts">
 // import { useRouter } from 'vue-router';
 import debounce from 'lodash/debounce';
-import { SearchIcon } from 'tdesign-icons-vue-next';
+import { DownloadIcon, RefreshIcon, SearchIcon } from 'tdesign-icons-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';
 import { computed, onMounted, ref, toRaw } from 'vue';
 
@@ -62,6 +82,7 @@ import { prefix } from '@/config/global';
 import { useSettingStore } from '@/store';
 
 import { COLUMNS } from './columns';
+import { moduleName } from './constants';
 import roleForm from './form.vue';
 
 const store = useSettingStore();
@@ -144,7 +165,7 @@ const onCancel = () => {
 const confirmBody = computed(() => {
   if (deleteIdx.value > -1) {
     const { name } = data.value[deleteIdx.value];
-    return `角色[${name}]将被删除，且无法恢复`;
+    return `${moduleName}[${name}]将被删除，且无法恢复`;
   }
   return '';
 });
