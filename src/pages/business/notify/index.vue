@@ -1,53 +1,46 @@
 <template>
   <div>
-    <t-card class="list-card-container" :bordered="false">
-      <t-row justify="space-between">
-        <div class="left-operation-container">
-          <t-button @click="handleAdd"> 添加{{ moduleName }} </t-button>
-        </div>
-        <div>
-          <t-select
-            :options="platformOptions"
-            default-value="dingtalk"
-            placeholder="请选择平台"
-            @change="onPlatformChange"
-          />
-        </div>
-        <div class="flex">
-          <div class="ml-4 t-radio-group t-size-m t-radio-group__outline">
-            <div class="t-radio-button" @click="fetchData">
-              <refresh-icon class="mr-1" />
-              <span class="hidden lg:inline">刷新</span>
-            </div>
-            <!-- <div class="t-radio-button">
-              <cloud-upload-icon class="mr-1" />
-              <span class="hidden lg:inline">导入</span>
-            </div> -->
-            <div class="t-radio-button">
-              <download-icon class="mr-1" />
-              <span class="hidden lg:inline">导出</span>
-            </div>
+    <t-row class="mb-4" justify="space-between">
+      <div>
+        <t-button @click="handleAdd"> 添加{{ moduleName }} </t-button>
+      </div>
+      <!-- <div>
+        <t-select
+          :options="platformOptions"
+          default-value="dingtalk"
+          placeholder="请选择平台"
+          @change="onPlatformChange"
+        />
+      </div> -->
+      <div class="flex">
+        <div class="ml-4 t-radio-group t-size-m t-radio-group__outline">
+          <div class="t-radio-button" @click="fetchData">
+            <refresh-icon class="mr-1" />
+            <span class="hidden lg:inline">刷新</span>
+          </div>
+          <!-- <div class="t-radio-button">
+            <cloud-upload-icon class="mr-1" />
+            <span class="hidden lg:inline">导入</span>
+          </div> -->
+          <div class="t-radio-button">
+            <download-icon class="mr-1" />
+            <span class="hidden lg:inline">导出</span>
           </div>
         </div>
-      </t-row>
-      <t-table
-        :data="data"
-        :columns="COLUMNS"
-        :row-key="rowKey"
-        vertical-align="top"
-        :hover="true"
-        :loading="dataLoading"
-        :header-affixed-top="headerAffixedTop"
-      >
-        <template #op="slotProps">
-          <t-space>
-            <t-link theme="primary" @click="handleEdit(slotProps.row)">编辑</t-link>
-            <t-link theme="danger" @click="handleDelete(slotProps)">删除</t-link>
-          </t-space>
-        </template>
-      </t-table>
+      </div>
+    </t-row>
+    <t-card class="mb-4" :bordered="false">
+      <t-descriptions layout="vertical" itemLayout="horizontal" title="钉钉" v-for="dingtalk in all.dingtalks" :key="dingtalk.id">
+        <t-descriptions-item label="名称">{{ dingtalk.name }}</t-descriptions-item>
+        <t-descriptions-item label="发送地址">{{ dingtalk.webhook }}</t-descriptions-item>
+      </t-descriptions>
     </t-card>
-
+    <t-card class="mb-4" :bordered="false">
+      <t-descriptions layout="vertical" itemLayout="horizontal" title="企业微信" v-for="wecom in all.wecoms" :key="wecom.id">
+        <t-descriptions-item label="名称">{{ wecom.name }}</t-descriptions-item>
+        <t-descriptions-item label="发送地址">{{ wecom.webhook }}</t-descriptions-item>
+      </t-descriptions>
+    </t-card>
     <t-dialog
       v-model:visible="confirmVisible"
       header="确认删除当前所选角色？"
@@ -77,7 +70,7 @@ import { getDicts } from '@/api/system';
 import { prefix } from '@/config/global';
 import { useSettingStore } from '@/store';
 
-import { COLUMNS } from './columns';
+// import { COLUMNS } from './columns';
 import { moduleName } from './constants';
 import notifyForm from './form.vue';
 
@@ -90,12 +83,12 @@ const store = useSettingStore();
 
 const all = ref({});
 
-const data = computed(() => {
-  if (platform.value && all.value[`${platform.value}s`]) {
-    return all.value[`${platform.value}s`];
-  }
-  return [];
-});
+// const data = computed(() => {
+//   if (platform.value && all.value[`${platform.value}s`]) {
+//     return all.value[`${platform.value}s`];
+//   }
+//   return [];
+// });
 
 const rowKey = 'index';
 // const pagination = ref({
