@@ -121,7 +121,7 @@ export function toggleAdminStatus(data: any) {
 
 export function getDicts(params: any) {
   return request.get({
-    url: '/common/dicts',
+    url: '/dicts',
     params,
   });
 }
