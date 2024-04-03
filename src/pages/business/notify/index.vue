@@ -3,6 +3,7 @@
     <t-row class="mb-4" justify="space-between">
       <div>
         <t-button @click="handleAdd"> 添加{{ moduleName }} </t-button>
+        <t-button class="ml-3" @click="handleSend"> 发送消息 </t-button>
       </div>
       <!-- <div>
         <t-select
@@ -30,13 +31,25 @@
       </div>
     </t-row>
     <t-card class="mb-4" :bordered="false">
-      <t-descriptions layout="vertical" itemLayout="horizontal" title="钉钉" v-for="dingtalk in all.dingtalks" :key="dingtalk.id">
+      <t-descriptions
+        v-for="dingtalk in all.dingtalks"
+        :key="dingtalk.id"
+        layout="vertical"
+        item-layout="horizontal"
+        title="钉钉"
+      >
         <t-descriptions-item label="名称">{{ dingtalk.name }}</t-descriptions-item>
         <t-descriptions-item label="发送地址">{{ dingtalk.webhook }}</t-descriptions-item>
       </t-descriptions>
     </t-card>
     <t-card class="mb-4" :bordered="false">
-      <t-descriptions layout="vertical" itemLayout="horizontal" title="企业微信" v-for="wecom in all.wecoms" :key="wecom.id">
+      <t-descriptions
+        v-for="wecom in all.wecoms"
+        :key="wecom.id"
+        layout="vertical"
+        item-layout="horizontal"
+        title="企业微信"
+      >
         <t-descriptions-item label="名称">{{ wecom.name }}</t-descriptions-item>
         <t-descriptions-item label="发送地址">{{ wecom.webhook }}</t-descriptions-item>
       </t-descriptions>
@@ -49,6 +62,9 @@
       @confirm="onConfirmDelete"
     />
     <notifyForm ref="notifyFormRef" :platform-options="platformOptions" @update="onUpdated" />
+    <t-dialog v-model:visible="sendVisible" :cancel-btn="null" :confirm-btn="null" header="发送消息">
+      <sendForm ref="sendFormRef" :platform-options="platformOptions" :senders="all" />
+    </t-dialog>
   </div>
 </template>
 
@@ -67,14 +83,15 @@ import { computed, onMounted, ref, toRaw } from 'vue';
 
 import { deleteNotify, getNotifies } from '@/api/notify';
 import { getDicts } from '@/api/system';
-import { prefix } from '@/config/global';
-import { useSettingStore } from '@/store';
+// import { prefix } from '@/config/global';
+// import { useSettingStore } from '@/store';
 
 // import { COLUMNS } from './columns';
 import { moduleName } from './constants';
 import notifyForm from './form.vue';
+import sendForm from '../components/sendForm.vue';
 
-const store = useSettingStore();
+// const store = useSettingStore();
 
 // const keyword = ref('');
 // const handleKeywordInput = debounce(() => {
@@ -90,7 +107,7 @@ const all = ref({});
 //   return [];
 // });
 
-const rowKey = 'index';
+// const rowKey = 'index';
 // const pagination = ref({
 //   defaultPageSize: 10,
 //   pageSize: 10,
@@ -126,13 +143,13 @@ const onUpdated = () => {
   fetchData();
 };
 
-const headerAffixedTop = computed(
-  () =>
-    ({
-      offsetTop: store.isUseTabsRouter ? 48 : 0,
-      container: `.${prefix}-layout`,
-    }) as any,
-);
+// const headerAffixedTop = computed(
+//   () =>
+//     ({
+//       offsetTop: store.isUseTabsRouter ? 48 : 0,
+//       container: `.${prefix}-layout`,
+//     }) as any,
+// );
 
 const deleteIdx = ref(-1);
 const confirmVisible = ref(false);
@@ -141,15 +158,15 @@ const resetIdx = () => {
   deleteIdx.value = -1;
 };
 
-const onConfirmDelete = () => {
-  deleteNotify(data.value[deleteIdx.value].id).then((res) => {
-    data.value.splice(deleteIdx.value, 1);
-    confirmVisible.value = false;
-    MessagePlugin.success('删除成功');
-    // pagination.value.total--;
-    resetIdx();
-  });
-};
+// const onConfirmDelete = () => {
+//   deleteNotify(data.value[deleteIdx.value].id).then((res) => {
+//     data.value.splice(deleteIdx.value, 1);
+//     confirmVisible.value = false;
+//     MessagePlugin.success('删除成功');
+//     // pagination.value.total--;
+//     resetIdx();
+//   });
+// };
 
 const onCancel = () => {
   resetIdx();
@@ -164,11 +181,11 @@ const confirmBody = computed(() => {
 
 const platformOptions = ref([]);
 
-const platform = ref('dingtalk');
+// const platform = ref('dingtalk');
 
-const onPlatformChange = (val) => {
-  platform.value = val;
-};
+// const onPlatformChange = (val) => {
+//   platform.value = val;
+// };
 
 onMounted(() => {
   getDicts({
@@ -180,17 +197,24 @@ onMounted(() => {
 });
 
 const notifyFormRef = ref();
+const sendFormRef = ref();
 
 const handleAdd = () => {
   notifyFormRef.value.open();
 };
-
-const handleEdit = (row: any) => {
-  notifyFormRef.value.open(toRaw(row));
+const handleSend = () => {
+  sendVisible.value = true;
+  sendFormRef.value.reset();
 };
 
-const handleDelete = (row: { rowIndex: any }) => {
-  deleteIdx.value = row.rowIndex;
-  confirmVisible.value = true;
-};
+const sendVisible = ref(false);
+
+// const handleEdit = (row: any) => {
+//   notifyFormRef.value.open(toRaw(row));
+// };
+
+// const handleDelete = (row: { rowIndex: any }) => {
+//   deleteIdx.value = row.rowIndex;
+//   confirmVisible.value = true;
+// };
 </script>

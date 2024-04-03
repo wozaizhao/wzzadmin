@@ -38,3 +38,10 @@ export function getNofity(id: any) {
     url: `/admin/notifies${id}`,
   });
 }
+
+export function sendNotificaiton(data: any) {
+  return request.post({
+    url: '/admin/send',
+    data,
+  });
+}
