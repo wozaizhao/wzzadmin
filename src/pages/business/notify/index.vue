@@ -2,8 +2,8 @@
   <div>
     <t-row class="mb-4" justify="space-between">
       <div>
-        <t-button @click="handleAdd"> 添加{{ moduleName }} </t-button>
-        <t-button class="ml-3" @click="handleSend"> 发送消息 </t-button>
+        <t-button @click="handleAdd"> 添加{{ moduleName }}通道 </t-button>
+        <t-button class="ml-3" @click="handleSend"> 发送{{ moduleName }} </t-button>
       </div>
       <!-- <div>
         <t-select
@@ -158,7 +158,7 @@ const resetIdx = () => {
   deleteIdx.value = -1;
 };
 
-// const onConfirmDelete = () => {
+const onConfirmDelete = () => {
 //   deleteNotify(data.value[deleteIdx.value].id).then((res) => {
 //     data.value.splice(deleteIdx.value, 1);
 //     confirmVisible.value = false;
@@ -166,7 +166,7 @@ const resetIdx = () => {
 //     // pagination.value.total--;
 //     resetIdx();
 //   });
-// };
+};
 
 const onCancel = () => {
   resetIdx();
