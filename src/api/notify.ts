@@ -22,18 +22,11 @@ export function editNotify(data: any) {
 
 export function deleteNotify(id: any) {
   return request.delete({
-    url: `/admin/notifies${id}`,
+    url: `/admin/notifies/${id}`,
   });
 }
 
-export function editNofity(data: any) {
-  return request.put({
-    url: '/admin/notifies',
-    data,
-  });
-}
-
-export function getNofity(id: any) {
+export function getNotify(id: any) {
   return request.get({
     url: `/admin/notifies${id}`,
   });

@@ -24,3 +24,10 @@ export function getMenuList() {
     url: '/admin/menuList',
   });
 }
+
+export function uploadByUrl(data: any) {
+  return request.post({
+    url: '/admin/uploadByUrl',
+    data,
+  });
+}
