@@ -163,6 +163,7 @@ const open = (val: any) => {
     title.value = `编辑${moduleName}`;
     mode.value = 'edit';
   } else {
+    logoEditable.value = true;
     formData.value = INITIAL_DATA;
     title.value = `新增${moduleName}`;
     mode.value = 'add';
