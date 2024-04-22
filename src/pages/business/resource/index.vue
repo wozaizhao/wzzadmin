@@ -51,6 +51,7 @@
             :key="item"
             class="mr-3"
             shape="round"
+            size="small"
             theme="primary"
             variant="light-outline"
           >
