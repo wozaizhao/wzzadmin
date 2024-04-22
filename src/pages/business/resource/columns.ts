@@ -12,7 +12,7 @@ export const COLUMNS: PrimaryTableCol<TableRowData>[] = [
     colKey: 'logo',
     // fixed: 'left',
     cell: (h, { col, row }) =>
-      h(Image, { class: 'h-5', alt: 'logo', loading: 'loading...', src: `https://cos.wozaizhao.com/${row.logo}` }),
+      h(Image, { class: 'h-5', alt: 'logo', loading: 'loading...', error: () => 'https://cos.wozaizhao.com/logo.svg', src: `https://cos.wozaizhao.com/${row.logo}` }),
   },
   {
     title: '名称',

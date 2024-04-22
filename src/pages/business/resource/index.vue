@@ -159,7 +159,7 @@ const fetchData = async () => {
   dataLoading.value = true;
   try {
     const { list, total } = await getResources({
-      pageNum: pagination.value.current,
+      page: pagination.value.current,
       pageSize: pagination.value.pageSize,
       keyword: keyword.value,
     });
