@@ -44,11 +44,11 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { ErrorCircleIcon } from 'tdesign-icons-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';
 import { onMounted, ref } from 'vue';
 
 import { addNotify, editNotify } from '@/api/notify';
-import { ErrorCircleIcon } from 'tdesign-icons-vue-next';
 
 import { FORM_RULES, INITIAL_DATA, moduleName } from './constants';
 

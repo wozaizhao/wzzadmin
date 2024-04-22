@@ -45,27 +45,30 @@
         @page-change="rehandlePageChange"
       >
         <!-- 插槽方式 自定义单元格， colKey 的值默认为插槽名称  -->
-        <template #roles="{ row }">
+        <template #tags="{ row }">
           <t-tag
-            v-for="item in row.roles"
-            :key="item.id"
+            v-for="item in row.tags.split(',')"
+            :key="item"
             class="mr-3"
             shape="round"
             theme="primary"
             variant="light-outline"
           >
-            {{ item.name }}
+            {{ item }}
           </t-tag>
+        </template>
+        <template #visible="{ row }">
+          <t-switch :value="row.visible" @change="handleVisibleChange(row)" />
         </template>
         <template #op="slotProps">
           <t-space>
-            <t-link
+            <!-- <t-link
               v-if="slotProps.row.status === STATUS.ENABLED"
               theme="danger"
               @click="toggleStatus(slotProps.row, STATUS.DISABLED)"
               >禁用</t-link
             >
-            <t-link v-else theme="primary" @click="toggleStatus(slotProps.row, STATUS.ENABLED)">启用</t-link>
+            <t-link v-else theme="primary" @click="toggleStatus(slotProps.row, STATUS.ENABLED)">启用</t-link> -->
             <t-link theme="primary" @click="handleEdit(slotProps.row)">编辑</t-link>
             <t-link theme="danger" @click="handleDelete(slotProps)">删除</t-link>
           </t-space>
@@ -97,9 +100,9 @@ import { DownloadIcon, RefreshIcon, SearchIcon } from 'tdesign-icons-vue-next';
 import { DialogPlugin, MessagePlugin } from 'tdesign-vue-next';
 import { computed, onMounted, ref, toRaw } from 'vue';
 
-import { deleteResource, getResources, toggleResourceStatus } from '@/api/resource';
+import { deleteResource, getResources, toggleResourceVisible } from '@/api/resource';
 import { prefix } from '@/config/global';
-import { STATUS, STATUS_TXT } from '@/constants';
+import { STATUS, VISIBLE } from '@/constants';
 import { useSettingStore } from '@/store';
 
 // import { saveAsExcel } from '@/utils/util';
@@ -116,14 +119,15 @@ const handleKeywordInput = debounce(() => {
 
 const data = ref([]);
 
-const toggleStatus = (row: any, status: number) => {
+const handleVisibleChange = (row: any) => {
+  console.log('row', row.visible);
   const confirmDia = DialogPlugin({
     header: '确认',
-    body: `确定要${STATUS_TXT[status]}${moduleName}${row.account}吗`,
+    body: `确定要设置${moduleName}${row.title}${VISIBLE[`${!row.visible}`]}吗`,
     confirmBtn: '确定',
     cancelBtn: '取消',
     onConfirm: ({ e }) => {
-      toggleResourceStatus({ id: row.id, status }).then((res) => {
+      toggleResourceVisible({ id: row.id, visible: !row.visible }).then((res) => {
         confirmDia.hide();
         fetchData();
       });

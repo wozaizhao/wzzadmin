@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { PrimaryTableCol, TableRowData, Image } from 'tdesign-vue-next';
+import { Image, PrimaryTableCol, TableRowData } from 'tdesign-vue-next';
 
 import { STATUS_TXT } from '@/constants';
 
@@ -11,14 +11,16 @@ export const COLUMNS: PrimaryTableCol<TableRowData>[] = [
     width: 100,
     colKey: 'logo',
     // fixed: 'left',
-    cell: (h, { col, row }) => h('div', h(Image, { loading: 'loading...', src: `https://cos.wozaizhao.com/${row.logo}` })),
+    cell: (h, { col, row }) =>
+      h(Image, { class: 'h-5', alt: 'logo', loading: 'loading...', src: `https://cos.wozaizhao.com/${row.logo}` }),
   },
   {
     title: '名称',
     // align: 'center',
-    // width: 320,
+    width: 140,
     colKey: 'title',
     // fixed: 'left',
+    cell: (h, { col, row }) => h('a', { class: 'text-sky-500', href: row.url, target: '_blank' }, row.title),
   },
   {
     title: '评论',

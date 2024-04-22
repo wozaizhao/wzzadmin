@@ -2,7 +2,7 @@ import { request } from '@/utils/request';
 
 export function getResources() {
   return request.get({
-    url: '/resources',
+    url: '/admin/resources',
   });
 }
 
@@ -26,9 +26,9 @@ export function deleteResource(id: any) {
   });
 }
 
-export function toggleResourceStatus(data: any) {
+export function toggleResourceVisible(data: any) {
   return request.post({
-    url: `/admin/resources/toggleStatus`,
+    url: `/admin/resources/setVisible`,
     data,
   });
 }

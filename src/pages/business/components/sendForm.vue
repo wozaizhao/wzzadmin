@@ -19,17 +19,22 @@
       </t-tooltip>
     </t-form-item> -->
     <t-form-item label="发送方式" name="sendType">
-      <t-select v-model="formData.sendType" :options="sendTypes" placeholder="请选择发送方式" @change="onSendTypeChange" />
+      <t-select
+        v-model="formData.sendType"
+        :options="sendTypes"
+        placeholder="请选择发送方式"
+        @change="onSendTypeChange"
+      />
     </t-form-item>
     <t-form-item v-if="formData.sendType === 'delay'" label="延迟时间" name="delayNumber">
-      <t-input type=number class="w-6/12" v-model="formData.delayNumber" placeholder="请输入" />
-      <t-select class="w-6/12" v-model="formData.delayUnit" :options="delayUnits" placeholder="请选择" />
+      <t-input v-model="formData.delayNumber" type="number" class="w-6/12" placeholder="请输入" />
+      <t-select v-model="formData.delayUnit" class="w-6/12" :options="delayUnits" placeholder="请选择" />
     </t-form-item>
     <t-form-item v-if="formData.sendType === 'loop'" label="循环类型" name="loopType">
       <t-select v-model="formData.loopType" :options="loopTypes" placeholder="请选择" @change="onLoopTypeChange" />
     </t-form-item>
     <t-form-item v-if="formData.loopType === 'once'" label="日期" name="day">
-      <t-date-picker class="w-full" v-model="formData.day" />
+      <t-date-picker v-model="formData.day" class="w-full" />
     </t-form-item>
     <t-form-item v-if="formData.loopType === 'weekly'" label="星期" name="week">
       <t-select v-model="formData.week" multiple :options="weeks" placeholder="请选择" />
@@ -38,11 +43,15 @@
       <t-select v-model="formData.dayOfMonth" :options="dayOfMonths" placeholder="请选择" />
     </t-form-item>
     <t-form-item v-if="formData.loopType === 'yearly'" label="日期" name="dayOfYear">
-      <t-date-picker :popupProps="{ overlayInnerClassName: 'hidden-year' }" class="w-full" v-model="formData.dayOfYear"
-        format="MM-DD" />
+      <t-date-picker
+        v-model="formData.dayOfYear"
+        :popup-props="{ overlayInnerClassName: 'hidden-year' }"
+        class="w-full"
+        format="MM-DD"
+      />
     </t-form-item>
     <t-form-item v-if="formData.sendType === 'loop'" label="时间" name="time">
-      <t-timePicker class="w-full" v-model="formData.time" format="HH:mm" />
+      <t-timePicker v-model="formData.time" class="w-full" format="HH:mm" />
     </t-form-item>
     <div class="text-center mt-4">
       <t-button variant="outline" type="reset" @click="reset">重置</t-button>
@@ -58,12 +67,14 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { MessagePlugin } from 'tdesign-vue-next';
-import type { FormRule } from 'tdesign-vue-next';
-import { onMounted, ref, computed } from 'vue';
-import { sendNotificaiton } from '@/api/notify';
 import { ErrorCircleIcon } from 'tdesign-icons-vue-next';
-import { INITIAL_DATA, sendTypes, delayUnits, loopTypes, weeks, dayOfMonths } from './constants';
+import type { FormRule } from 'tdesign-vue-next';
+import { MessagePlugin } from 'tdesign-vue-next';
+import { computed, onMounted, ref } from 'vue';
+
+import { sendNotificaiton } from '@/api/notify';
+
+import { dayOfMonths, delayUnits, INITIAL_DATA, loopTypes, sendTypes, weeks } from './constants';
 
 const emit = defineEmits(['update']);
 
@@ -124,7 +135,7 @@ const resetLoopParams = () => {
   formData.value.dayOfMonth = '';
   formData.value.dayOfYear = '';
   formData.value.time = '';
-}
+};
 
 const onSendTypeChange = (e: any) => {
   console.log(e);
@@ -149,42 +160,40 @@ const onSubmit = () => {
     if (typeof valid === 'boolean' && valid) {
       if (formData.value.sendType === 'delay') {
         let delay = 0;
-        if (formData.value.delayUnit == "second") {
+        if (formData.value.delayUnit === 'second') {
           delay = formData.value.delayNumber;
-        } else {
-          if (formData.value.delayUnit == "minute") {
-            //crontab = "*/"+count+" * * * "+days;
-            delay = formData.value.delayNumber * 60;
-          } else if (formData.value.delayUnit == "hour") {
-            //crontab = "0 */"+count+" * * "+days;
-            delay = formData.value.delayNumber * 60 * 60;
-          }
+        } else if (formData.value.delayUnit === 'minute') {
+          // crontab = "*/"+count+" * * * "+days;
+          delay = formData.value.delayNumber * 60;
+        } else if (formData.value.delayUnit === 'hour') {
+          // crontab = "0 */"+count+" * * "+days;
+          delay = formData.value.delayNumber * 60 * 60;
         }
         formData.value.delay = delay;
       } else if (formData.value.sendType === 'loop') {
         let cron = '';
-        const [ hour, minute ] = formData.value.time.split(':');
+        const [hour, minute] = formData.value.time.split(':');
         if (formData.value.loopType === 'everyday') {
-        // 每天 5 点 20 分：`20 5 * * *`
+          // 每天 5 点 20 分：`20 5 * * *`
           cron = `${minute} ${hour} * * *`;
         } else if (formData.value.loopType === 'workday') {
-        // 工作日 5 点 20 分：`20 5 * * 1-5`
+          // 工作日 5 点 20 分：`20 5 * * 1-5`
           cron = `${minute} ${hour} * * 1-5`;
         } else if (formData.value.loopType === 'weekend') {
-        // 周末 5 点 20 分：`20 5 * * 6,7`
+          // 周末 5 点 20 分：`20 5 * * 6,7`
           cron = `${minute} ${hour} * * 6,7`;
         } else if (formData.value.loopType === 'once') {
-        // 
+          //
         } else if (formData.value.loopType === 'weekly') {
-        // 周一周三 5 点 20 分：`20 5 * * 1,3`
-          let week = formData.value.week.join(',');
+          // 周一周三 5 点 20 分：`20 5 * * 1,3`
+          const week = formData.value.week.join(',');
           cron = `${minute} ${hour} * * ${week}`;
         } else if (formData.value.loopType === 'monthly') {
-        // 每月 5 号 5 点 20 分：`20 5 5 * *`
+          // 每月 5 号 5 点 20 分：`20 5 5 * *`
           cron = `${minute} ${hour} ${formData.value.dayOfMonth} * *`;
         } else if (formData.value.loopType === 'yearly') {
           const [month, day] = formData.value.dayOfYear.split('-');
-        // 每年 4 月 5 日 5 点 20 分：`20 5 5 4 *`
+          // 每年 4 月 5 日 5 点 20 分：`20 5 5 4 *`
           cron = `${minute} ${hour} ${day} ${month} *`;
         }
         formData.value.cron = cron;
@@ -192,7 +201,7 @@ const onSubmit = () => {
       console.log('formData.value', formData.value);
 
       // cron
-      
+
       // sendNotificaiton(formData.value).then((res) => {
       //   MessagePlugin.success('发送成功');
       //   emit('update');
@@ -201,7 +210,7 @@ const onSubmit = () => {
   });
 };
 
-onMounted(() => { });
+onMounted(() => {});
 
 // const open = (val: any) => {
 //   if (val) {

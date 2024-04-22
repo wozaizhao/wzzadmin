@@ -7,14 +7,19 @@
       <t-form-item label="URL" name="url">
         <t-input v-model="formData.url" placeholder="请输入URL" />
       </t-form-item>
-      <div class="text-right mb-2">
-        <swap-icon @click="toggleUploadType" class="cursor-pointer" size="16px" />
+      <div v-if="logoEditable" class="text-right mb-2">
+        <swap-icon class="cursor-pointer text-gray-400 hover:text-gray-600" size="16px" @click="toggleUploadType" />
+        <close-circle-icon
+          class="cursor-pointer ml-2 text-gray-400 hover:text-gray-600"
+          size="16px"
+          @click="handleEditLogo(false)"
+        />
       </div>
-      <t-form-item v-if="uploadType === 'by-file'" label="Logo" name="logo">
+      <t-form-item v-if="uploadType === 'by-file' && logoEditable" label="Logo" name="logo">
         <t-upload
           theme="image"
-          :headers="{'Authorization': `Bearer ${token}`}"
-          :data="{ 'dir': 'logo' }"
+          :headers="{ Authorization: `Bearer ${token}` }"
+          :data="{ dir: 'logo' }"
           accept="image/*"
           :max="1"
           action="/api/admin/upload"
@@ -22,7 +27,15 @@
           @success="handleSuccess"
         />
       </t-form-item>
-      <t-form-item v-if="uploadType === 'by-url'" label="Logo" name="logoURL">
+      <t-form-item v-if="uploadType === 'by-url' && formData.logo && !logoEditable" label="Logo" name="logoURL">
+        <t-image class="h-6" :src="`https://cos.wozaizhao.com/${formData.logo}`" />
+        <close-circle-icon
+          class="cursor-pointer ml-2 text-gray-400 hover:text-gray-600"
+          size="16px"
+          @click="handleEditLogo(true)"
+        />
+      </t-form-item>
+      <t-form-item v-if="uploadType === 'by-url' && logoEditable" label="Logo" name="logoURL">
         <t-input v-model="formData.logoURL" placeholder="请输入Logo URL" />
       </t-form-item>
       <t-form-item label="评论" name="comment">
@@ -48,15 +61,16 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { CloseCircleIcon, SwapIcon } from 'tdesign-icons-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';
 import { onMounted, ref } from 'vue';
 
 import { uploadByUrl } from '@/api/admin';
 import { addResource, editResource } from '@/api/resource';
+import { useUserStore } from '@/store';
 
 import { FORM_RULES, INITIAL_DATA, moduleName } from './constants';
-import { SwapIcon } from 'tdesign-icons-vue-next';
-import { useUserStore } from '@/store';
+
 const userStore = useUserStore();
 const { token } = userStore;
 interface Emits {
@@ -71,7 +85,8 @@ const title = ref(`新增${moduleName}`);
 const mode = ref('add'); // 新增 add 编辑 edit
 const dialogVisible = ref(false);
 const formRef = ref();
-const uploadType = ref('by-url'); // by-file by-url 
+const uploadType = ref('by-url'); // by-file by-url
+const logoEditable = ref(false); // 编辑模式下默认logo不可编辑
 
 const toggleUploadType = () => {
   if (uploadType.value === 'by-file') {
@@ -79,16 +94,20 @@ const toggleUploadType = () => {
   } else {
     uploadType.value = 'by-file';
   }
-}
+};
+
+const handleEditLogo = (val) => {
+  logoEditable.value = val;
+};
 
 const handleSuccess = (e) => {
   console.log('e', e);
   formData.value.logo = e.response.data;
-}
+};
 
 const handleFail = (e) => {
   console.log('e', e);
-}
+};
 
 const onReset = () => {
   formRef.value.reset();
@@ -99,17 +118,16 @@ const onSubmit = () => {
       console.log(formData.value);
       try {
         if (uploadType.value === 'by-url') {
-          const uploadRes = await uploadByUrl({ 'dir': 'logo', url: formData.value.logoURL})
+          const uploadRes = await uploadByUrl({ dir: 'logo', url: formData.value.logoURL });
           console.log(uploadRes);
           formData.value.logo = uploadRes;
         }
-        
-      } catch(e) {
-
+      } catch (e) {
+        console.log('上传失败', e);
       }
 
-      formData.value.tags = formData.value.tagsRaw.join(',')
-      
+      formData.value.tags = formData.value.tagsRaw.join(',');
+
       if (formData.value.id > 0) {
         editResource(formData.value).then((res) => {
           console.log(res);
@@ -130,9 +148,18 @@ const onSubmit = () => {
 };
 
 const open = (val: any) => {
-  console.log('open', val)
+  console.log('open', val);
   if (val) {
-    formData.value = { ...val };
+    logoEditable.value = false;
+    formData.value = {
+      id: val.id,
+      title: val.title,
+      url: val.url,
+      comment: val.comment,
+      logo: val.logo,
+      tags: val.tags,
+      tagsRaw: val.tags.split(','),
+    };
     title.value = `编辑${moduleName}`;
     mode.value = 'edit';
   } else {
@@ -144,9 +171,7 @@ const open = (val: any) => {
   dialogVisible.value = true;
 };
 
-onMounted(() => {
-  
-});
+onMounted(() => {});
 
 defineExpose({
   open,

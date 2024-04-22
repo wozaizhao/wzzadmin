@@ -83,13 +83,13 @@ import { computed, onMounted, ref, toRaw } from 'vue';
 
 import { deleteNotify, getNotifies } from '@/api/notify';
 import { getDicts } from '@/api/system';
+
+import sendForm from '../components/sendForm.vue';
 // import { prefix } from '@/config/global';
 // import { useSettingStore } from '@/store';
-
 // import { COLUMNS } from './columns';
 import { moduleName } from './constants';
 import notifyForm from './form.vue';
-import sendForm from '../components/sendForm.vue';
 
 // const store = useSettingStore();
 
@@ -159,13 +159,13 @@ const resetIdx = () => {
 };
 
 const onConfirmDelete = () => {
-//   deleteNotify(data.value[deleteIdx.value].id).then((res) => {
-//     data.value.splice(deleteIdx.value, 1);
-//     confirmVisible.value = false;
-//     MessagePlugin.success('删除成功');
-//     // pagination.value.total--;
-//     resetIdx();
-//   });
+  //   deleteNotify(data.value[deleteIdx.value].id).then((res) => {
+  //     data.value.splice(deleteIdx.value, 1);
+  //     confirmVisible.value = false;
+  //     MessagePlugin.success('删除成功');
+  //     // pagination.value.total--;
+  //     resetIdx();
+  //   });
 };
 
 const onCancel = () => {

@@ -1,3 +1,8 @@
+export const VISIBLE = {
+  true: '可见',
+  false: '不可见',
+};
+
 export const STATUS_TXT = ['未激活', '启用', '禁用'];
 
 export const STATUS = {
