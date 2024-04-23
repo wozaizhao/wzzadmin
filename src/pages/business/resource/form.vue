@@ -150,7 +150,7 @@ const onSubmit = () => {
 const open = (val: any) => {
   console.log('open', val);
   if (val) {
-    logoEditable.value = false;
+    logoEditable.value = !val.logo;
     formData.value = {
       id: val.id,
       title: val.title,

@@ -1,18 +1,23 @@
 import dayjs from 'dayjs';
 import { Image, PrimaryTableCol, TableRowData } from 'tdesign-vue-next';
 
-import { STATUS_TXT } from '@/constants';
-
 export const COLUMNS: PrimaryTableCol<TableRowData>[] = [
   // { colKey: 'row-select', type: 'multiple', width: 64, fixed: 'left' },
   {
     title: 'Logo',
     // align: 'center',
-    width: 100,
+    // width: 150,
     colKey: 'logo',
     // fixed: 'left',
     cell: (h, { col, row }) =>
-      h(Image, { class: 'h-5', alt: 'logo', loading: 'loading...', error: () => 'https://cos.wozaizhao.com/logo.svg', src: `https://cos.wozaizhao.com/${row.logo}` }),
+      h(Image, {
+        class: 'h-5',
+        fit: 'scale-down',
+        alt: 'logo',
+        loading: 'loading...',
+        error: '',
+        src: `https://cos.wozaizhao.com/${row.logo}`,
+      }),
   },
   {
     title: '名称',
@@ -31,7 +36,7 @@ export const COLUMNS: PrimaryTableCol<TableRowData>[] = [
   {
     title: '标签',
     // align: 'center',
-    // width: 320,
+    width: 180,
     colKey: 'tags',
     // fixed: 'left',
   },
